@@ -3,7 +3,14 @@
 #include <string.h>
 #include <ctype.h>
 
+#undef PART2
+
 #define NUM_MONKEY  8
+#ifdef PART2
+#define NUM_ROUNDS  10000
+#else
+#define NUM_ROUNDS  20
+#endif
 
 struct monkey
 {
@@ -55,6 +62,9 @@ int main(void)
 	struct monkey monkey[NUM_MONKEY];
 	struct item *node;
 	int c, i, j;
+#ifdef PART2
+	int common_divisor = 1;
+#endif
 	char ch;
 
 	input = fopen("day11_input.txt", "r");
@@ -120,6 +130,9 @@ int main(void)
 		printf("Monkey operation %d with value %d.\n", monkey[i].operation, monkey[i].op_val);
 
 		fscanf(input, "  Test: divisible by %d\n", &monkey[i].div);
+	#ifdef PART2
+		common_divisor *= monkey[i].div;
+	#endif
 
 		fscanf(input, "    If true: throw to monkey %d\n", &j);
 		printf("True goes to %d, ", j);
@@ -135,7 +148,7 @@ int main(void)
 	}
 
 	// rounds
-	for (i = 0; i < 20; ++i)
+	for (i = 0; i < NUM_ROUNDS; ++i)
 	{
 		printf("\nRound %d:\n", i);
 
@@ -145,7 +158,7 @@ int main(void)
 				switch (monkey[j].operation)
 				{
 				case OP_ADD:
-					monkey[j].item->worry += monkey[j].op_val;	
+					monkey[j].item->worry += monkey[j].op_val;
 
 					break;
 				case OP_MUL:
@@ -158,7 +171,11 @@ int main(void)
 					break;
 				}
 
+			#ifndef PART2
 				monkey[j].item->worry /= 3;
+			#else
+				monkey[j].item->worry %= common_divisor;
+			#endif
 
 				if ((monkey[j].item->worry % monkey[j].div) == 0)
 				{
